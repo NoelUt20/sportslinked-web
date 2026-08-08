@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- viewport-fit=cover is what exposes env(safe-area-inset-*) to the page.
+         Without it react-native-safe-area-context reports zero insets on iOS and
+         the tab bar sits under the home indicator. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+    />
+
+    <title>SportsLinked</title>
+    <meta
+      name="description"
+      content="The professional network for athletes, coaches, scouts, and clubs."
+    />
+
+    <!-- Added to the home screen, this runs without Safari's chrome. The apple-
+         prefixed name is deprecated but still the one iOS actually reads. -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="SportsLinked" />
+
+    <!-- "default" rather than "black-translucent": the app has a light theme, and
+         a translucent bar forces light status-bar text that would vanish against it.
+         iOS tints this strip with theme-color instead, which follows the scheme. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#04070F" media="(prefers-color-scheme: dark)" />
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="icon" href="favicon.png" />
+
+    <!-- The `react-native-web` recommended style reset:
+         https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+
+    <style id="sportslinked-standalone">
+      /* Paints the letterboxed area behind the app (and the bounce region) so the
+         notch and home-indicator strips don't flash white on a dark screen. */
+      html {
+        background-color: #04070f;
+      }
+      @media (prefers-color-scheme: light) {
+        html {
+          background-color: #ffffff;
+        }
+      }
+      /* Stops the whole page rubber-banding when a list inside it hits its end —
+         the giveaway that a home-screen app is really a web view. */
+      body {
+        overscroll-behavior: none;
+      }
+      /* Removes the grey flash iOS paints over anything tapped. */
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
+  <link rel="icon" href="/sportslinked-web/favicon.ico"/></head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+  <script src="/sportslinked-web/_expo/static/js/web/index-8c773309a8d7470936f3fa4a22aa9710.js" defer></script>
+</body>
+</html>
