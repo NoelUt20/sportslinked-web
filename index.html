@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- viewport-fit=cover is what exposes env(safe-area-inset-*) to the page.
+         Without it react-native-safe-area-context reports zero insets on iOS and
+         the tab bar sits under the home indicator.
+
+         interactive-widget=resizes-content is what keeps the header on screen
+         while typing. The default (resizes-visual) leaves the layout viewport at
+         full height and *pans* it up to reveal the focused field, which scrolls
+         the top of the app out of view and can't be scrolled back while the
+         keyboard is open. Resizing the layout viewport instead makes the app's
+         own flex layout do the work: the header stays put, the content area
+         shrinks, and the composer rides up on top of the keyboard. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+
+    <title>Sportslinked</title>
+    <meta
+      name="description"
+      content="The professional network for athletes, coaches, scouts, and clubs."
+    />
+
+    <!-- Link previews. Without these, a profile shared into WhatsApp or Slack —
+         the way this product actually spreads — renders as a bare grey URL row.
+         og:url and og:image have to be absolute (relative paths are ignored by
+         every crawler), so they name the GitHub Pages origin the export is built
+         for; change both if the app moves to its own domain. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sportslinked" />
+    <meta property="og:title" content="Sportslinked" />
+    <meta
+      property="og:description"
+      content="The professional network for athletes, coaches, scouts, and clubs."
+    />
+    <meta property="og:url" content="https://noelut20.github.io/sportslinked-web/" />
+    <meta
+      property="og:image"
+      content="https://noelut20.github.io/sportslinked-web/icon-512.png"
+    />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:locale" content="sv_SE" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Sportslinked" />
+    <meta
+      name="twitter:description"
+      content="The professional network for athletes, coaches, scouts, and clubs."
+    />
+    <meta
+      name="twitter:image"
+      content="https://noelut20.github.io/sportslinked-web/icon-512.png"
+    />
+
+    <!-- Added to the home screen, this runs without Safari's chrome. The apple-
+         prefixed name is deprecated but still the one iOS actually reads. -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Sportslinked" />
+
+    <!-- "default", NOT "black-translucent" — and this one is measured on a real
+         installed iPhone rather than reasoned about, because reasoning about it
+         got it wrong for a whole day.
+
+         black-translucent does hand the page a frame that begins under the
+         notch, but iOS then sizes the viewport as though the status bar were
+         still reserved: innerHeight came back 793 on an 852pt screen, and the
+         missing 59pt landed at the BOTTOM. Everything anchored to bottom:0 —
+         the tab bar most visibly — therefore stopped 59pt short of the glass on
+         every single screen, and no amount of CSS inside the page could fill
+         space the page did not own. That is the gap this app shipped with.
+
+         "default" reserves the status-bar strip and places the same 793pt
+         viewport *below* it instead, which puts bottom:0 on the true bottom
+         edge. Verified side by side with two home-screen-installed test pages
+         identical but for this line: black-translucent left dead screen under
+         the page, default left none.
+
+         The accepted cost: Klipp's video no longer bleeds under the notch. A
+         permanent gap beneath the tab bar on every screen is the worse of the
+         two, so this is the deliberate trade. Note also that insets.top is now
+         0 rather than ~59, since the OS reserves that strip again — screens
+         that pad by insets.top simply get 0 and sit correctly under it. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0D0D0D" media="(prefers-color-scheme: dark)" />
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="icon" href="favicon.png" />
+
+    <!-- The `react-native-web` recommended style reset:
+         https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+        /* The browser's own default (8px on body, in every UA) was never
+           zeroed here — invisible on ordinary screens padded well past it,
+           but exactly the sliver a full-bleed page like Klipp needs to run
+           through the notch/status-bar strip. */
+        margin: 0;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+      }
+      /* `position: fixed` with all four edges pinned to 0, not a height:100%
+         chain (not even 100dvh — tried that first; in an iOS home-screen
+         install it can still settle a few pixels short of the true screen
+         height, which is exactly what left a sliver of the notch/status-bar
+         area unpainted by the Klipp video). Fixed positioning anchored to
+         every edge is the one thing that reliably spans the true visual
+         viewport in iOS standalone mode regardless of vh/dvh quirks.
+
+         Measured and confirmed on an installed iPhone: fixed+inset:0, a
+         JS-measured innerHeight/visualViewport height and 100dvh all report
+         the identical bottom edge here, in both a Safari tab and a home-screen
+         install. #root spans its viewport correctly; it never needed help. */
+      #root {
+        display: flex;
+        flex: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    </style>
+
+    <style id="sportslinked-standalone">
+      /* Paints the letterboxed area behind the app (and the bounce region) so the
+         notch and home-indicator strips don't flash white on a dark screen. */
+      html {
+        background-color: #0D0D0D;
+      }
+      @media (prefers-color-scheme: light) {
+        html {
+          background-color: #ffffff;
+        }
+      }
+      /* Stops the whole page rubber-banding when a list inside it hits its end —
+         the giveaway that a home-screen app is really a web view. */
+      body {
+        overscroll-behavior: none;
+      }
+      /* Removes the grey flash iOS paints over anything tapped. */
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+      /* react-native-web's TextInput is a real <input>/<textarea>, which
+         picks up the browser's own default focus ring — a yellow/orange
+         sweep across the field the moment it's focused, in Chromium's
+         default UA styles. The app already has its own resting-state border
+         (colors.fieldBorder) on every field; this native ring on top of that
+         was never a deliberate part of the design. */
+      input:focus,
+      textarea:focus {
+        outline: none;
+      }
+    </style>
+
+    <style id="sportslinked-motion">
+      /* Skeleton pulse, as a CSS animation rather than a JS one.
+         A loading feed mounts ~24 placeholder blocks at once. Driven by
+         `Animated` those were 24 concurrent requestAnimationFrame loops writing
+         inline styles on the main thread — during the app's single busiest
+         moment, competing with the very render they exist to cover. As a CSS
+         animation on `opacity` alone the compositor runs all of them for
+         effectively nothing, and the main thread is left free to do the work. */
+      @keyframes sl-skeleton-pulse {
+        0%,
+        100% {
+          opacity: 0.4;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+      .sl-skeleton {
+        animation: sl-skeleton-pulse 1.4s ease-in-out infinite;
+        will-change: opacity;
+      }
+
+      /* Scrolling containers get their own layer and are told the browser need
+         not look outside them for layout/paint effects. `contain: paint` is what
+         lets a long feed skip painting rows scrolled out of view entirely. */
+      .sl-scroll {
+        contain: paint;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Anything mid-transition should never also be doing text-selection or
+         hit-testing work — both force main-thread passes during the animation. */
+      .sl-animating {
+        user-select: none;
+        pointer-events: none;
+      }
+
+      /* Honour the OS "reduce motion" setting, which every major app does and
+         some accessibility regulations require: keep state changes instant
+         rather than animated, instead of removing the feedback entirely. */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+
+    <!-- Orientation lock. The Screen Orientation API's `.lock()` only works in
+         Chrome/Android and only in fullscreen — iOS Safari has never
+         implemented it at all, in a tab or a home-screen install, so a CSS-only
+         approach is the one thing that actually works everywhere. When the
+         device reports landscape, the whole page is rotated -90deg back to
+         portrait and its box swapped (width becomes the viewport height and
+         vice versa) so it still fills the screen edge to edge — the content
+         never itself sees a landscape frame to lay out into. Scoped to phone-
+         width viewports so a desktop window turned wide (which also matches
+         `orientation: landscape`) is left alone. -->
+    <style id="sportslinked-orientation-lock">
+      @media screen and (max-width: 926px) and (orientation: landscape) {
+        html {
+          transform: rotate(-90deg);
+          transform-origin: top left;
+          width: 100vh;
+          height: 100vw;
+          overflow: hidden;
+          position: absolute;
+          top: 100%;
+          left: 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+  <script src="/sportslinked-web/_expo/static/js/web/index-78199ebf36bf3b9487f1647e54150f93.js" defer></script>
+</body>
+</html>
